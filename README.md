@@ -188,7 +188,7 @@ Project ini dibuat untuk pembelajaran dan pengembangan sistem presensi modern be
 
 Developed by:
 
-* Baiatur Ridhwan El Habibie
+*Alif Baiatur Ridhwan El Habibie
 
 ---
 
