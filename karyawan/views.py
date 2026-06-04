@@ -6,8 +6,10 @@ from django.db import transaction
 from django.db.models import Q
 from karyawan.models import Pegawai
 from karyawan.forms import PegawaiForm
+from karyawan.decorators import admin_or_superuser_required
 
 @login_required
+@admin_or_superuser_required
 def pegawai_list(request):
     """
     Menampilkan daftar seluruh pegawai.
@@ -33,6 +35,7 @@ def pegawai_list(request):
 
 
 @login_required
+@admin_or_superuser_required
 def pegawai_create(request):
     """
     Menangani pembuatan data Pegawai baru beserta akun User Django.
@@ -44,11 +47,17 @@ def pegawai_create(request):
             try:
                 with transaction.atomic():
                     # 1. Buat User Django baru
+                    role_dipilih = form.cleaned_data.get('role', 'pegawai')
                     user = User.objects.create_user(
                         username=form.cleaned_data['username'],
                         password=form.cleaned_data['password'],
                         first_name=form.cleaned_data['nama_lengkap']
                     )
+                    # Sync is_staff dan is_superuser berdasarkan role
+                    user.is_staff = role_dipilih in ('admin', 'superuser')
+                    user.is_superuser = (role_dipilih == 'superuser')
+                    user.save()
+
                     # 2. Buat profil Pegawai baru yang terhubung ke User
                     pegawai = form.save(commit=False)
                     pegawai.user = user
@@ -72,6 +81,7 @@ def pegawai_create(request):
 
 
 @login_required
+@admin_or_superuser_required
 def pegawai_update(request, pk):
     """
     Menangani pembaruan data Pegawai dan akun User.
@@ -84,10 +94,15 @@ def pegawai_update(request, pk):
             try:
                 with transaction.atomic():
                     # 1. Update data User
+                    role_dipilih = form.cleaned_data.get('role', 'pegawai')
                     user = pegawai.user
                     user.username = form.cleaned_data['username']
                     user.first_name = form.cleaned_data['nama_lengkap']
                     
+                    # Sync is_staff dan is_superuser berdasarkan role
+                    user.is_staff = role_dipilih in ('admin', 'superuser')
+                    user.is_superuser = (role_dipilih == 'superuser')
+
                     # Jika kolom password diisi, update password
                     password = form.cleaned_data.get('password')
                     if password:
@@ -117,6 +132,7 @@ def pegawai_update(request, pk):
 
 
 @login_required
+@admin_or_superuser_required
 def pegawai_delete(request, pk):
     """
     Menghapus data Pegawai dan akun User terkait.

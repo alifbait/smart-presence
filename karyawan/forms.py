@@ -17,10 +17,16 @@ class PegawaiForm(forms.ModelForm):
         label="Kata Sandi (Password)",
         widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Kata sandi rahasia'})
     )
+    role = forms.ChoiceField(
+        choices=Pegawai.ROLE_CHOICES,
+        required=True,
+        label="Role / Peran",
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
 
     class Meta:
         model = Pegawai
-        fields = ['nama_lengkap', 'jabatan', 'divisi']
+        fields = ['nama_lengkap', 'jabatan', 'divisi', 'role']
         widgets = {
             'nama_lengkap': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nama lengkap pegawai'}),
             'jabatan': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Contoh: Staff IT, Supervisor'}),
@@ -35,11 +41,13 @@ class PegawaiForm(forms.ModelForm):
         # Jika sedang mengedit pegawai yang sudah ada
         if self.instance and self.instance.pk:
             self.fields['username'].initial = self.instance.user.username
+            self.fields['role'].initial = self.instance.role
             self.fields['password'].required = False
             self.fields['password'].help_text = "Kosongkan jika Anda tidak ingin mengganti kata sandi."
         else:
             # Kata sandi wajib diisi jika menambah pegawai baru
             self.fields['password'].required = True
+            self.fields['role'].initial = 'pegawai'
 
     def clean_username(self):
         """

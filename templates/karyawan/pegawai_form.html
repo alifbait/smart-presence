@@ -95,6 +95,15 @@
                                     <div class="text-danger small mt-1">{% for error in form.password.errors %}{{ error }}{% endfor %}</div>
                                 {% endif %}
                             </div>
+
+                            <!-- Role Selection -->
+                            <div class="mb-3">
+                                <label for="{{ form.role.id_for_label }}" class="form-label fw-semibold text-dark small">{{ form.role.label }}</label>
+                                {{ form.role }}
+                                {% if form.role.errors %}
+                                    <div class="text-danger small mt-1">{% for error in form.role.errors %}{{ error }}{% endfor %}</div>
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
 

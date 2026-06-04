@@ -275,14 +275,18 @@
                                 <span><i class="bi bi-file-earmark-pdf me-2 text-danger"></i> Cetak Laporan Bulanan</span>
                                 <i class="bi bi-chevron-right text-muted small"></i>
                             </a>
+                            {% if is_superuser_role or is_admin_role %}
                             <a href="{% url 'pegawai_list' %}" class="btn btn-light text-start fw-semibold py-3 px-4 rounded-3 border-0 shadow-sm d-flex align-items-center justify-content-between hover-light">
                                 <span><i class="bi bi-people-fill me-2 text-primary"></i> Manajemen Pegawai</span>
                                 <i class="bi bi-chevron-right text-muted small"></i>
                             </a>
+                            {% endif %}
+                            {% if is_superuser_role %}
                             <a href="/admin" target="_blank" class="btn btn-light text-start fw-semibold py-3 px-4 rounded-3 border-0 shadow-sm d-flex align-items-center justify-content-between hover-light">
                                 <span><i class="bi bi-shield-lock me-2 text-dark"></i> Kelola Panel Admin</span>
                                 <i class="bi bi-chevron-right text-muted small"></i>
                             </a>
+                            {% endif %}
                         </div>
                     </div>
                 </div>

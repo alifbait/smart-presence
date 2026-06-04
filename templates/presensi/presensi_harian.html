@@ -61,8 +61,10 @@
                 <!-- Absen Forms -->
                 {% if not presensi_hari_ini %}
                     <!-- Mode: Absen Masuk -->
-                    <form action="{% url 'presensi_masuk' %}" method="POST">
+                    <form id="presensi-form" action="{% url 'presensi_masuk' %}" method="POST">
                         {% csrf_token %}
+                        <input type="hidden" name="latitude" id="latitude">
+                        <input type="hidden" name="longitude" id="longitude">
                         <div class="mb-4">
                             <label for="id_keterangan" class="form-label fw-semibold text-dark small">Catatan / Keterangan (Opsional)</label>
                             {{ form.keterangan }}
@@ -114,17 +116,40 @@
 </div>
 
 <script>
-    function updateClock() {
-        const now = new Date();
-        const options = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
-        const timeStr = now.toLocaleTimeString('id-ID', options) + " WIB";
-        const clockEl = document.getElementById('digital-clock');
-        if (clockEl) {
-            clockEl.innerText = timeStr;
-        }
+function updateClock() {
+    const now = new Date();
+    const options = {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+    };
+    const timeStr = now.toLocaleTimeString('id-ID', options) + " WIB";
+    const clockEl = document.getElementById('digital-clock');
+    if (clockEl) {
+        clockEl.innerText = timeStr;
     }
-    setInterval(updateClock, 1000);
-    // Jalankan sekali saat load
-    document.addEventListener("DOMContentLoaded", updateClock);
+}
+
+setInterval(updateClock, 1000);
+
+document.addEventListener("DOMContentLoaded", function () {
+    updateClock();
+    const form = document.getElementById("presensi-form");
+    console.log("FORM:", form);
+    if (!form) return;
+
+    navigator.geolocation.getCurrentPosition(
+        function(position) {
+            document.getElementById("latitude").value = position.coords.latitude;
+            document.getElementById("longitude").value = position.coords.longitude;
+            console.log("Latitude:", position.coords.latitude);
+            console.log("Longitude:", position.coords.longitude);
+        },
+        function(error) {
+            console.log("ERROR GEO:", error);
+        }
+    );
+});
 </script>
 {% endblock %}

@@ -11,6 +11,17 @@ from django.conf import settings
 from django.conf.urls.static import static
 from smart_presence import views
 
+# Override admin.site.has_permission agar hanya superuser yang bisa mengakses Django Admin.
+original_has_permission = admin.site.has_permission
+
+def custom_has_permission(request):
+    if request.user.is_authenticated and not request.user.is_superuser:
+        # Kembalikan False jika user adalah staff/admin tapi bukan superuser
+        return False
+    return original_has_permission(request)
+
+admin.site.has_permission = custom_has_permission
+
 urlpatterns = [
     # Rute ke Admin Panel bawaan Django
     path('admin/', admin.site.urls),

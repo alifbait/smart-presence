@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.utils import timezone
 from datetime import time
 from karyawan.models import Pegawai
+from karyawan.decorators import admin_or_superuser_required
 from presensi.models import Presensi, PengajuanIzin
 from presensi.forms import PresensiForm, PengajuanIzinForm
 
@@ -92,7 +93,9 @@ def presensi_masuk(request):
             tanggal=today,
             jam_masuk=current_time,
             status_kehadiran=status,
-            keterangan=keterangan
+            keterangan=keterangan,
+            latitude=request.POST.get('latitude'),
+            longitude=request.POST.get('longitude')
         )
 
         messages.success(request, f"Presensi masuk berhasil dicatat pukul {current_time.strftime('%H:%M')} WIB. Status: {status}.")
@@ -677,6 +680,7 @@ def riwayat_izin(request):
 
 
 @login_required
+@admin_or_superuser_required
 def admin_izin(request):
     """
     Halaman manajemen kelola pengajuan izin bagi admin/superuser.
@@ -711,6 +715,7 @@ def admin_izin(request):
 
 
 @login_required
+@admin_or_superuser_required
 def setujui_izin(request, izin_id):
     """
     Menyetujui pengajuan izin pegawai dan mengintegrasikannya ke tabel Presensi harian.
@@ -762,6 +767,7 @@ def setujui_izin(request, izin_id):
 
 
 @login_required
+@admin_or_superuser_required
 def tolak_izin(request, izin_id):
     """
     Menolak pengajuan izin pegawai dengan menyertakan alasan penolakan.

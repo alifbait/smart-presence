@@ -51,7 +51,7 @@
                                 <i class="bi bi-speedometer2 me-1"></i> Dashboard
                             </a>
                         </li>
-                        {% if user.is_superuser or user.is_staff %}
+                        {% if is_superuser_role or is_admin_role %}
                         <li class="nav-item">
                             <a class="nav-link px-3 fw-medium {% if 'karyawan' in request.path %}text-white{% else %}text-white-50{% endif %} hover-white" href="{% url 'pegawai_list' %}">
                                 <i class="bi bi-people-fill me-1"></i> Manajemen User
@@ -63,7 +63,7 @@
                                 <i class="bi bi-calendar-check me-1"></i> Presensi
                             </a>
                         </li>
-                        {% if user.is_superuser or user.is_staff %}
+                        {% if is_superuser_role or is_admin_role %}
                         <li class="nav-item">
                             <a class="nav-link px-3 fw-medium {% if 'izin' in request.path %}text-white{% else %}text-white-50{% endif %} hover-white" href="{% url 'admin_izin' %}">
                                 <i class="bi bi-clipboard-check me-1"></i> Persetujuan Izin
@@ -86,8 +86,15 @@
                         </li>
                         <li class="nav-item ms-lg-3 mt-2 mt-lg-0 d-flex align-items-center">
                             <span
-                                class="badge bg-primary-soft text-cyan border border-cyan px-3 py-2 rounded-pill me-2">
+                                class="badge bg-primary-soft text-cyan border border-cyan px-3 py-2 rounded-pill me-2 d-inline-flex align-items-center">
                                 <i class="bi bi-person-fill me-1"></i> {{ user.first_name|default:user.username }}
+                                {% if is_superuser_role %}
+                                <span class="badge bg-danger text-white ms-2 small text-uppercase" style="font-size: 0.65rem; padding: 2px 6px;">Superuser</span>
+                                {% elif is_admin_role %}
+                                <span class="badge bg-warning text-dark ms-2 small text-uppercase" style="font-size: 0.65rem; padding: 2px 6px;">Admin</span>
+                                {% elif is_pegawai_role %}
+                                <span class="badge bg-info text-dark ms-2 small text-uppercase" style="font-size: 0.65rem; padding: 2px 6px;">Pegawai</span>
+                                {% endif %}
                             </span>
                             <a class="btn btn-outline-light btn-sm fw-semibold px-3 rounded-pill shadow-sm"
                                 href="{% url 'logout' %}">

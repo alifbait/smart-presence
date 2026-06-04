@@ -19,6 +19,8 @@ class Presensi(models.Model):
     jam_pulang = models.TimeField(null=True, blank=True, verbose_name="Jam Pulang")
     status_kehadiran = models.CharField(max_length=15, choices=STATUS_CHOICES, default='Hadir', verbose_name="Status Kehadiran")
     keterangan = models.TextField(null=True, blank=True, verbose_name="Keterangan")
+    latitude = models.CharField(max_length=100, blank=True, null=True)
+    longitude = models.CharField(max_length=100, blank=True, null=True)
 
     class Meta:
         verbose_name = "Presensi"

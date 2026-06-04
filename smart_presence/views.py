@@ -1,14 +1,10 @@
-"""
-Views untuk Sistem Autentikasi Smart Presence.
-Dibuat dengan dokumentasi Bahasa Indonesia yang jelas dan informatif.
-"""
-
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
+from karyawan.decorators import get_user_role
 
 def home_view(request):
     """
@@ -43,6 +39,9 @@ def login_view(request):
             if user is not None:
                 login(request, user)
                 messages.success(request, f"Selamat datang kembali, {user.first_name or user.username}! Anda berhasil masuk.")
+                user_role = get_user_role(user)
+                if user_role == 'superuser':
+                    return redirect('/admin/')
                 return redirect('dashboard')
         else:
             messages.error(request, "Nama pengguna atau kata sandi salah. Silakan periksa kembali.")
