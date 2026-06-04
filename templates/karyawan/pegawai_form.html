@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if is_edit %}Ubah Data Karyawan | Smart Presence{% else %}Tambah Karyawan Baru | Smart Presence{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center animate-fade-in">
+    <div class="col-lg-8 col-md-10">
+        <!-- Form Header -->
+        <div class="card border-0 shadow-sm rounded-4 bg-white p-4 mb-4">
+            <div class="d-flex align-items-center">
+                <a href="{% url 'pegawai_list' %}" class="btn btn-light rounded-circle p-2 me-3 d-inline-flex align-items-center justify-content-center shadow-sm" style="width: 42px; height: 42px;">
+                    <i class="bi bi-arrow-left fs-5 text-dark"></i>
+                </a>
+                <div>
+                    <h3 class="fw-bold mb-0 text-dark">
+                        {% if is_edit %}<i class="bi bi-pencil-square text-primary me-1"></i> Ubah Data Pegawai{% else %}<i class="bi bi-person-plus-fill text-primary me-1"></i> Tambah Pegawai Baru{% endif %}
+                    </h3>
+                    <p class="text-muted small mb-0">Isi formulir dengan informasi lengkap pegawai di bawah ini.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Card Body -->
+        <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
+            <div class="card-body p-5">
+                <form method="POST" autocomplete="off" novalidate>
+                    {% csrf_token %}
+                    
+                    <!-- Non-field Errors -->
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger border-0 rounded-3 mb-4">
+                            {% for error in form.non_field_errors %}
+                                <div class="small fw-semibold"><i class="bi bi-exclamation-triangle-fill me-1"></i> {{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <!-- Form Fields Grid Layout -->
+                    <div class="row g-4">
+                        <!-- Left Block: Informasi Pegawai -->
+                        <div class="col-md-6">
+                            <h5 class="fw-bold text-primary mb-3 border-bottom pb-2"><i class="bi bi-card-text me-1"></i> Profil Pegawai</h5>
+                            
+                            <!-- Nama Lengkap -->
+                            <div class="mb-3">
+                                <label for="{{ form.nama_lengkap.id_for_label }}" class="form-label fw-semibold text-dark small">{{ form.nama_lengkap.label }}</label>
+                                {{ form.nama_lengkap }}
+                                {% if form.nama_lengkap.errors %}
+                                    <div class="text-danger small mt-1">{% for error in form.nama_lengkap.errors %}{{ error }}{% endfor %}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Jabatan -->
+                            <div class="mb-3">
+                                <label for="{{ form.jabatan.id_for_label }}" class="form-label fw-semibold text-dark small">{{ form.jabatan.label }}</label>
+                                {{ form.jabatan }}
+                                {% if form.jabatan.errors %}
+                                    <div class="text-danger small mt-1">{% for error in form.jabatan.errors %}{{ error }}{% endfor %}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Divisi -->
+                            <div class="mb-3">
+                                <label for="{{ form.divisi.id_for_label }}" class="form-label fw-semibold text-dark small">{{ form.divisi.label }}</label>
+                                {{ form.divisi }}
+                                {% if form.divisi.errors %}
+                                    <div class="text-danger small mt-1">{% for error in form.divisi.errors %}{{ error }}{% endfor %}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Right Block: Kredensial Akun -->
+                        <div class="col-md-6">
+                            <h5 class="fw-bold text-primary mb-3 border-bottom pb-2"><i class="bi bi-shield-lock me-1"></i> Akun Login</h5>
+                            
+                            <!-- Username -->
+                            <div class="mb-3">
+                                <label for="{{ form.username.id_for_label }}" class="form-label fw-semibold text-dark small">{{ form.username.label }}</label>
+                                {{ form.username }}
+                                {% if form.username.errors %}
+                                    <div class="text-danger small mt-1">{% for error in form.username.errors %}{{ error }}{% endfor %}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Password -->
+                            <div class="mb-3">
+                                <label for="{{ form.password.id_for_label }}" class="form-label fw-semibold text-dark small">{{ form.password.label }}</label>
+                                {{ form.password }}
+                                {% if form.password.help_text %}
+                                    <div class="form-text x-small text-muted mb-1"><i class="bi bi-info-circle me-1"></i> {{ form.password.help_text }}</div>
+                                {% endif %}
+                                {% if form.password.errors %}
+                                    <div class="text-danger small mt-1">{% for error in form.password.errors %}{{ error }}{% endfor %}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex justify-content-end gap-2 mt-5 pt-3 border-top">
+                        <a href="{% url 'pegawai_list' %}" class="btn btn-light fw-semibold px-4 py-2.5 rounded-pill border border-light-subtle">
+                            Batal
+                        </a>
+                        <button type="submit" class="btn btn-primary fw-bold px-5 py-2.5 rounded-pill shadow-sm">
+                            <i class="bi bi-check2-circle me-1"></i> {% if is_edit %}Simpan Perubahan{% else %}Simpan Data Baru{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block title %}Manajemen User | Smart Presence{% endblock %}
+
+{% block content %}
+<div class="row g-4 animate-fade-in">
+    <!-- Header Section -->
+    <div class="col-12">
+        <div class="card border-0 shadow-sm rounded-4 bg-white p-4">
+            <div class="row align-items-center g-3">
+                <div class="col-md-6">
+                    <h3 class="fw-bold mb-1 text-dark"><i class="bi bi-people-fill text-primary me-2"></i> Manajemen Karyawan</h3>
+                    <p class="text-muted small mb-0">Kelola informasi pegawai, jabatan, divisi, dan akun autentikasi sistem.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a href="{% url 'pegawai_create' %}" class="btn btn-primary fw-semibold px-4 py-2.5 rounded-pill shadow-sm">
+                        <i class="bi bi-person-plus-fill me-1"></i> Tambah Pegawai Baru
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Table Section -->
+    <div class="col-12">
+        <div class="card border-0 shadow-sm rounded-4 bg-white p-4">
+            <!-- Search Filter Bar -->
+            <div class="row mb-4 justify-content-between align-items-center g-3">
+                <div class="col-lg-5 col-md-7">
+                    <form method="GET" action="{% url 'pegawai_list' %}" autocomplete="off">
+                        <div class="input-group shadow-inner rounded-pill overflow-hidden border border-light-subtle bg-light">
+                            <span class="input-group-text bg-transparent border-0 text-muted ps-3">
+                                <i class="bi bi-search"></i>
+                            </span>
+                            <input type="text" 
+                                   name="q" 
+                                   class="form-control bg-transparent border-0 py-2.5 small" 
+                                   placeholder="Cari nama, jabatan, divisi, atau username..." 
+                                   value="{{ pencarian }}">
+                            {% if pencarian %}
+                                <a href="{% url 'pegawai_list' %}" class="btn bg-transparent border-0 text-muted d-flex align-items-center pe-3">
+                                    <i class="bi bi-x-circle-fill"></i>
+                                </a>
+                            {% endif %}
+                            <button type="submit" class="btn btn-primary px-4 fw-semibold rounded-pill my-1 me-1 shadow-sm fs-7">Cari</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-auto">
+                    <span class="text-muted small">Total Data: <strong>{{ daftar_pegawai|length }}</strong> Pegawai</span>
+                </div>
+            </div>
+
+            <!-- Pegawai Table -->
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr class="small text-muted text-uppercase">
+                            <th class="border-0 rounded-start-3" style="width: 60px;">No</th>
+                            <th class="border-0">Nama Karyawan</th>
+                            <th class="border-0">Username</th>
+                            <th class="border-0">Jabatan</th>
+                            <th class="border-0">Divisi</th>
+                            <th class="border-0 text-end rounded-end-3" style="width: 200px;">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pegawai in daftar_pegawai %}
+                        <tr>
+                            <td class="fw-semibold text-muted ps-3">{{ forloop.counter }}</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-primary-soft text-primary rounded-circle p-2 me-3 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
+                                        <i class="bi bi-person-badge fs-5"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-semibold text-dark">{{ pegawai.nama_lengkap }}</div>
+                                        {% if pegawai.user.is_superuser %}
+                                            <span class="badge bg-danger bg-opacity-10 text-danger x-small fw-bold">Superuser</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <code class="text-secondary fw-semibold">{{ pegawai.user.username }}</code>
+                            </td>
+                            <td>
+                                <span class="text-dark fw-medium">{{ pegawai.jabatan }}</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border border-light-subtle px-3 py-1.5 rounded-pill">{{ pegawai.divisi }}</span>
+                            </td>
+                            <td class="text-end pe-3">
+                                <div class="d-inline-flex gap-2">
+                                    <!-- Edit Button -->
+                                    <a href="{% url 'pegawai_update' pegawai.pk %}" class="btn btn-outline-primary btn-sm rounded-pill px-3 d-flex align-items-center">
+                                        <i class="bi bi-pencil-square me-1"></i> Ubah
+                                    </a>
+                                    <!-- Delete Form -->
+                                    {% if pegawai.user != request.user %}
+                                        <form action="{% url 'pegawai_delete' pegawai.pk %}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data pegawai {{ pegawai.nama_lengkap|escapejs }} beserta akun usernya? Tindakan ini tidak dapat dibatalkan.');" style="display: inline;">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3 d-flex align-items-center">
+                                                <i class="bi bi-trash3 me-1"></i> Hapus
+                                            </button>
+                                        </form>
+                                    {% else %}
+                                        <button class="btn btn-outline-secondary btn-sm rounded-pill px-3 d-flex align-items-center disabled" title="Anda tidak dapat menghapus akun sendiri">
+                                            <i class="bi bi-trash3 me-1"></i> Hapus
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5">
+                                <div class="text-muted mb-3">
+                                    <i class="bi bi-people fs-1 opacity-25"></i>
+                                </div>
+                                <h6 class="fw-semibold text-dark">Data pegawai tidak ditemukan</h6>
+                                <p class="text-muted small mb-0">Silakan tambahkan data baru atau sesuaikan kata kunci pencarian Anda.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Styling tombol cari agar pas dengan input rounded-pill */
+    .fs-7 {
+        font-size: 0.85rem !important;
+    }
+</style>
+{% endblock %}

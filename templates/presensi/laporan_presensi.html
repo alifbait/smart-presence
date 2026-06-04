@@ -1,0 +1,233 @@
+{% extends 'base.html' %}
+
+{% block title %}Laporan Kehadiran | Smart Presence{% endblock %}
+
+{% block content %}
+<div class="row g-4 animate-fade-in pb-5">
+    <!-- Header Page -->
+    <div class="col-12">
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-primary-gradient text-white">
+            <div class="card-body p-4 position-relative">
+                <div class="position-absolute top-50 end-0 translate-middle-y me-5 opacity-10 d-none d-lg-block">
+                    <i class="bi bi-file-earmark-bar-graph" style="font-size: 8rem;"></i>
+                </div>
+                <div class="row align-items-center position-relative z-index-1">
+                    <div class="col-lg-8">
+                        <span class="badge bg-cyan text-primary-dark fw-bold px-3 py-2 rounded-pill mb-3 text-uppercase tracking-wide">
+                            <i class="bi bi-shield-lock-fill me-1"></i> Area Administrator / Laporan
+                        </span>
+                        <h1 class="display-6 fw-bold mb-2">Laporan & Rekapitulasi Presensi</h1>
+                        <p class="lead opacity-80 mb-0">Kelola dan ekspor rekaman absensi pegawai secara real-time dan terstruktur.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Card -->
+    <div class="col-12">
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-3 text-dark"><i class="bi bi-funnel-fill text-primary me-2"></i>Saring Data Laporan</h5>
+                <form method="GET" action="{% url 'laporan_presensi' %}" class="row g-3 align-items-end">
+                    <div class="col-md-3">
+                        <label for="tanggal_awal" class="form-label small fw-semibold text-muted">Tanggal Awal</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-calendar-event text-muted"></i></span>
+                            <input type="date" class="form-control bg-light border-start-0 ps-0" id="tanggal_awal" name="tanggal_awal" value="{{ filters.tanggal_awal }}">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="tanggal_akhir" class="form-label small fw-semibold text-muted">Tanggal Akhir</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-calendar-event text-muted"></i></span>
+                            <input type="date" class="form-control bg-light border-start-0 ps-0" id="tanggal_akhir" name="tanggal_akhir" value="{{ filters.tanggal_akhir }}">
+                        </div>
+                    </div>
+                    
+                    {% if is_admin %}
+                    <div class="col-md-3">
+                        <label for="pegawai_id" class="form-label small fw-semibold text-muted">Pegawai</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-person text-muted"></i></span>
+                            <select class="form-select bg-light border-start-0 ps-0" id="pegawai_id" name="pegawai_id">
+                                <option value="">Semua Pegawai</option>
+                                {% for peg in daftar_pegawai %}
+                                <option value="{{ peg.id }}" {% if filters.pegawai_id == peg.id|stringformat:"i" %}selected{% endif %}>{{ peg.nama_lengkap }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="col-md-{% if is_admin %}3{% else %}6{% endif %}">
+                        <label for="status_kehadiran" class="form-label small fw-semibold text-muted">Status Kehadiran</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-info-circle text-muted"></i></span>
+                            <select class="form-select bg-light border-start-0 ps-0" id="status_kehadiran" name="status_kehadiran">
+                                <option value="">Semua Status</option>
+                                <option value="Hadir" {% if filters.status_kehadiran == 'Hadir' %}selected{% endif %}>Hadir</option>
+                                <option value="Terlambat" {% if filters.status_kehadiran == 'Terlambat' %}selected{% endif %}>Terlambat</option>
+                                <option value="Izin" {% if filters.status_kehadiran == 'Izin' %}selected{% endif %}>Izin</option>
+                                <option value="Alpa" {% if filters.status_kehadiran == 'Alpa' %}selected{% endif %}>Alpa</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="col-12 d-flex justify-content-between flex-wrap gap-2 mt-4">
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary fw-semibold px-4 rounded-pill shadow-sm">
+                                <i class="bi bi-search me-1"></i> Cari Data
+                            </button>
+                            <a href="{% url 'laporan_presensi' %}" class="btn btn-outline-secondary fw-semibold px-4 rounded-pill">
+                                <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
+                            </a>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <a href="{% url 'export_excel' %}?{{ request.GET.urlencode }}" class="btn btn-success fw-semibold px-4 rounded-pill shadow-sm">
+                                <i class="bi bi-file-earmark-excel me-1"></i> Export Excel
+                            </a>
+                            <a href="{% url 'export_pdf' %}?{{ request.GET.urlencode }}" class="btn btn-danger fw-semibold px-4 rounded-pill shadow-sm">
+                                <i class="bi bi-file-earmark-pdf me-1"></i> Export PDF
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards Row -->
+    <div class="col-lg-2 col-md-4 col-sm-6 animate-fade-in" style="animation-delay: 0.1s;">
+        <div class="card border-0 shadow-sm rounded-4 h-100 border-start border-success border-4">
+            <div class="card-body p-4 text-center">
+                <h6 class="text-muted fw-semibold mb-2">Hadir</h6>
+                <h3 class="display-6 fw-bold text-success mb-0">{{ stats.total_hadir }}</h3>
+                <span class="text-muted small">Hari</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-2 col-md-4 col-sm-6 animate-fade-in" style="animation-delay: 0.15s;">
+        <div class="card border-0 shadow-sm rounded-4 h-100 border-start border-warning border-4">
+            <div class="card-body p-4 text-center">
+                <h6 class="text-muted fw-semibold mb-2">Terlambat</h6>
+                <h3 class="display-6 fw-bold text-warning mb-0">{{ stats.total_terlambat }}</h3>
+                <span class="text-muted small">Kali</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-2 col-md-4 col-sm-6 animate-fade-in" style="animation-delay: 0.2s;">
+        <div class="card border-0 shadow-sm rounded-4 h-100 border-start border-info border-4">
+            <div class="card-body p-4 text-center">
+                <h6 class="text-muted fw-semibold mb-2">Izin / Sakit</h6>
+                <h3 class="display-6 fw-bold text-info mb-0">{{ stats.total_izin }}</h3>
+                <span class="text-muted small">Hari</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-2 col-md-4 col-sm-6 animate-fade-in" style="animation-delay: 0.25s;">
+        <div class="card border-0 shadow-sm rounded-4 h-100 border-start border-danger border-4">
+            <div class="card-body p-4 text-center">
+                <h6 class="text-muted fw-semibold mb-2">Alpa</h6>
+                <h3 class="display-6 fw-bold text-danger mb-0">{{ stats.total_alpa }}</h3>
+                <span class="text-muted small">Hari</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4 col-md-8 col-sm-12 animate-fade-in" style="animation-delay: 0.3s;">
+        <div class="card border-0 shadow-sm rounded-4 h-100 bg-cyan bg-opacity-10 border border-cyan-soft">
+            <div class="card-body p-4 d-flex align-items-center justify-content-between">
+                <div>
+                    <h6 class="text-cyan-dark fw-bold text-uppercase tracking-wider mb-2">Tingkat Kehadiran</h6>
+                    <p class="text-muted small mb-0">Dihitung dari rasio kehadiran terhadap total absen kerja.</p>
+                </div>
+                <div class="bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center border border-cyan" style="width: 80px; height: 80px; min-width: 80px;">
+                    <span class="h4 fw-bold text-primary-dark mb-0">{{ stats.persentase }}%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Table Card -->
+    <div class="col-12 animate-fade-in" style="animation-delay: 0.35s;">
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-header bg-white border-0 pt-4 pb-0 px-4">
+                <h5 class="fw-bold text-dark mb-1">Daftar Rekam Presensi</h5>
+                <p class="text-muted small mb-0">Menampilkan {{ riwayat|length }} data absensi sesuai saringan aktif</p>
+            </div>
+            <div class="card-body p-4">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr class="small text-muted text-uppercase">
+                                <th class="border-0 rounded-start-3" style="width: 50px;">#</th>
+                                <th class="border-0">Nama Karyawan</th>
+                                <th class="border-0">Tanggal</th>
+                                <th class="border-0">Jam Masuk</th>
+                                <th class="border-0">Jam Pulang</th>
+                                <th class="border-0">Status</th>
+                                <th class="border-0 rounded-end-3">Keterangan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in riwayat %}
+                            <tr>
+                                <td class="fw-semibold text-muted">{{ forloop.counter }}</td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-primary-soft text-primary rounded-circle p-2 me-3 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
+                                            <i class="bi bi-person-fill fs-5"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-semibold text-dark">{{ item.pegawai.nama_lengkap }}</div>
+                                            <div class="text-muted x-small">{{ item.pegawai.jabatan }} | {{ item.pegawai.divisi }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="fw-medium text-dark">{{ item.tanggal|date:"d M Y" }}</td>
+                                <td class="text-muted"><i class="bi bi-box-arrow-in-right text-success me-1"></i> {{ item.jam_masuk|time:"H:i:s"|default:"-" }}</td>
+                                <td class="text-muted"><i class="bi bi-box-arrow-left text-danger me-1"></i> {{ item.jam_pulang|time:"H:i:s"|default:"-" }}</td>
+                                <td>
+                                    {% if item.status_kehadiran == 'Hadir' %}
+                                    <span class="badge bg-success bg-opacity-10 text-success fw-semibold px-3 py-2 rounded-pill d-inline-flex align-items-center">
+                                        <i class="bi bi-check-circle-fill me-1"></i> Hadir
+                                    </span>
+                                    {% elif item.status_kehadiran == 'Terlambat' %}
+                                    <span class="badge bg-warning bg-opacity-10 text-warning fw-semibold px-3 py-2 rounded-pill d-inline-flex align-items-center">
+                                        <i class="bi bi-exclamation-circle-fill me-1"></i> Terlambat
+                                    </span>
+                                    {% elif item.status_kehadiran == 'Izin' %}
+                                    <span class="badge bg-info bg-opacity-10 text-info fw-semibold px-3 py-2 rounded-pill d-inline-flex align-items-center">
+                                        <i class="bi bi-info-circle-fill me-1"></i> Izin
+                                    </span>
+                                    {% else %}
+                                    <span class="badge bg-danger bg-opacity-10 text-danger fw-semibold px-3 py-2 rounded-pill d-inline-flex align-items-center">
+                                        <i class="bi bi-x-circle-fill me-1"></i> Alpa
+                                    </span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-muted small">{{ item.keterangan|default:"-" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center py-5 text-muted">
+                                    <div class="py-4">
+                                        <i class="bi bi-folder-x display-3 text-muted opacity-30 mb-3 d-block"></i>
+                                        <h6 class="fw-bold mb-1 text-dark">Data Presensi Kosong</h6>
+                                        <p class="text-muted small mb-0">Tidak ada rekam presensi yang sesuai dengan kriteria penyaringan Anda.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Profil Belum Lengkap | Smart Presence{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center animate-fade-in" style="min-height: 60vh;">
+    <div class="col-md-8 col-lg-6">
+        <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden text-center p-5">
+            <div class="bg-warning bg-opacity-10 text-warning rounded-circle p-4 mx-auto mb-4 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                <i class="bi bi-exclamation-triangle-fill fs-2"></i>
+            </div>
+            <h3 class="fw-bold mb-2 text-dark">Data Profil Belum Terdaftar</h3>
+            <p class="text-muted mb-4">
+                Sistem mendeteksi bahwa akun Anda (<strong>{{ user.username }}</strong>) belum terhubung dengan data profil <strong>Pegawai</strong>. Fitur presensi ini hanya tersedia untuk akun yang sudah memiliki profil Pegawai lengkap.
+            </p>
+            
+            {% if user.is_superuser %}
+                <div class="alert alert-info border-0 rounded-3 text-start small mb-4">
+                    <i class="bi bi-info-circle-fill me-1 text-info"></i> <strong>Catatan Admin:</strong> Anda masuk sebagai Superuser. Silakan tambahkan data Pegawai baru untuk username Anda melalui menu <strong>Manajemen User</strong> atau lewat Django Admin Panel agar dapat melakukan simulasi presensi.
+                </div>
+                <div class="d-flex justify-content-center gap-2">
+                    <a href="{% url 'pegawai_create' %}" class="btn btn-primary fw-bold px-4 py-2.5 rounded-pill shadow-sm">
+                        <i class="bi bi-person-plus-fill me-1"></i> Buat Profil Pegawai
+                    </a>
+                    <a href="{% url 'dashboard' %}" class="btn btn-light fw-semibold px-4 py-2.5 rounded-pill border border-light-subtle">
+                        Kembali ke Dashboard
+                    </a>
+                </div>
+            {% else %}
+                <div class="alert alert-danger border-0 rounded-3 text-start small mb-4">
+                    <i class="bi bi-shield-lock-fill me-1 text-danger"></i> Silakan hubungi bagian Kepegawaian (HRD) atau Administrator sistem untuk menautkan akun Anda dengan profil Pegawai yang sah.
+                </div>
+                <a href="{% url 'dashboard' %}" class="btn btn-primary fw-bold px-5 py-2.5 rounded-pill shadow-sm">
+                    Kembali ke Dashboard
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

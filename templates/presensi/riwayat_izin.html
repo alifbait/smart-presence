@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block title %}Riwayat Pengajuan Izin | Smart Presence{% endblock %}
+
+{% block content %}
+<div class="row g-4 animate-fade-in pb-5">
+    <!-- Header Section -->
+    <div class="col-12">
+        <div class="card border-0 shadow-sm rounded-4 bg-white p-4">
+            <div class="row align-items-center g-3">
+                <div class="col-md-8">
+                    <h3 class="fw-bold mb-1 text-dark">
+                        <i class="bi bi-envelope-paper text-primary me-2"></i> Riwayat Pengajuan Izin
+                    </h3>
+                    <p class="text-muted small mb-0">Pantau status persetujuan izin, sakit, dan cuti tahunan yang Anda ajukan.</p>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <a href="{% url 'ajukan_izin' %}" class="btn btn-primary fw-semibold px-4 py-2.5 rounded-pill shadow-sm">
+                        <i class="bi bi-calendar2-plus me-1"></i> Ajukan Izin / Cuti Baru
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table Section -->
+    <div class="col-12">
+        <div class="card border-0 shadow-sm rounded-4 bg-white p-4">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr class="small text-muted text-uppercase">
+                            <th class="border-0 rounded-start-3" style="width: 60px;">No</th>
+                            <th class="border-0">Jenis Pengajuan</th>
+                            <th class="border-0">Periode Tanggal</th>
+                            <th class="border-0" style="max-width: 250px;">Alasan</th>
+                            <th class="border-0">Bukti File</th>
+                            <th class="border-0" style="width: 150px;">Status</th>
+                            <th class="border-0 rounded-end-3" style="max-width: 200px;">Catatan Admin / Keterangan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in riwayat %}
+                        <tr>
+                            <td class="fw-semibold text-muted ps-3">{{ forloop.counter }}</td>
+                            <td>
+                                <span class="badge bg-primary bg-opacity-10 text-primary fw-bold px-3 py-2 rounded-pill">
+                                    {{ log.jenis_izin }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="fw-semibold text-dark">{{ log.tanggal_mulai|date:"d M Y" }}</div>
+                                <div class="text-muted x-small">s/d {{ log.tanggal_selesai|date:"d M Y" }}</div>
+                            </td>
+                            <td class="text-muted small text-truncate" style="max-width: 250px;" title="{{ log.alasan }}">
+                                {{ log.alasan }}
+                            </td>
+                            <td>
+                                {% if log.bukti_file %}
+                                <a href="{{ log.bukti_file.url }}" target="_blank" class="btn btn-light btn-sm rounded-pill px-3 py-1 border d-inline-flex align-items-center">
+                                    <i class="bi bi-file-earmark-arrow-down-fill text-danger me-1"></i> Berkas Bukti
+                                </a>
+                                {% else %}
+                                <span class="text-muted small">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if log.status_persetujuan == 'Pending' %}
+                                <span class="badge bg-warning bg-opacity-10 text-warning fw-semibold px-3 py-2 rounded-pill d-inline-flex align-items-center">
+                                    <i class="bi bi-clock-history me-1"></i> Pending
+                                </span>
+                                {% elif log.status_persetujuan == 'Disetujui' %}
+                                <span class="badge bg-success bg-opacity-10 text-success fw-semibold px-3 py-2 rounded-pill d-inline-flex align-items-center">
+                                    <i class="bi bi-check-circle-fill me-1"></i> Disetujui
+                                </span>
+                                {% else %}
+                                <span class="badge bg-danger bg-opacity-10 text-danger fw-semibold px-3 py-2 rounded-pill d-inline-flex align-items-center">
+                                    <i class="bi bi-x-circle-fill me-1"></i> Ditolak
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td class="text-muted small text-truncate" style="max-width: 200px;" title="{{ log.catatan_admin|default:'' }}">
+                                {{ log.catatan_admin|default:"-" }}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-5">
+                                <div class="text-muted mb-3">
+                                    <i class="bi bi-envelope-x fs-1 opacity-25"></i>
+                                </div>
+                                <h6 class="fw-semibold text-dark">Belum ada riwayat pengajuan izin</h6>
+                                <p class="text-muted small mb-0">Klik tombol "Ajukan Izin / Cuti Baru" untuk mengajukan izin atau cuti pertama Anda.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

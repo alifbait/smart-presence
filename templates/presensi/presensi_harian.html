@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+
+{% block title %}Absensi Harian | Smart Presence{% endblock %}
+
+{% block content %}
+<div class="row g-4 animate-fade-in justify-content-center pb-5">
+    <!-- Header Section -->
+    <div class="col-lg-10">
+        <div class="card border-0 shadow-sm rounded-4 bg-white p-4">
+            <div class="row align-items-center g-3">
+                <div class="col-md-6">
+                    <h3 class="fw-bold mb-1 text-dark"><i class="bi bi-calendar-check-fill text-primary me-2"></i> Absensi Harian</h3>
+                    <p class="text-muted small mb-0">Lakukan pencatatan waktu masuk dan pulang kerja Anda hari ini secara real-time.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <span class="badge bg-light text-dark border border-light-subtle px-3 py-2 rounded-pill small">
+                        <i class="bi bi-person-fill me-1 text-primary"></i> {{ pegawai.nama_lengkap }} ({{ pegawai.jabatan }})
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Panel: Clock & Action Buttons -->
+    <div class="col-lg-6 col-md-8">
+        <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden mb-4">
+            <!-- Glassmorphism header for Clock -->
+            <div class="card-header bg-primary-gradient text-white text-center py-5 position-relative">
+                <div class="position-relative z-index-1">
+                    <h6 class="text-uppercase tracking-wider opacity-75 small mb-2"><i class="bi bi-clock-fill me-1"></i> Waktu Server Saat Ini</h6>
+                    <h1 class="display-3 fw-bold mb-2" id="digital-clock">00:00:00 WIB</h1>
+                    <p class="mb-0 opacity-90 fw-medium"><i class="bi bi-calendar3 me-1"></i> {{ hari_ini }}</p>
+                </div>
+            </div>
+            
+            <div class="card-body p-5">
+                <!-- Check-in status display -->
+                <div class="row g-3 text-center mb-5">
+                    <div class="col-6 border-end">
+                        <small class="text-muted d-block mb-1">Jam Masuk</small>
+                        {% if presensi_hari_ini.jam_masuk %}
+                            <strong class="fs-4 text-dark">{{ presensi_hari_ini.jam_masuk|time:"H:i" }} WIB</strong>
+                            <span class="badge bg-{% if presensi_hari_ini.status_kehadiran == 'Hadir' %}success{% else %}warning{% endif %} bg-opacity-10 text-{% if presensi_hari_ini.status_kehadiran == 'Hadir' %}success{% else %}warning{% endif %} d-block mx-auto mt-1 w-75 py-1.5 rounded-pill">{{ presensi_hari_ini.status_kehadiran }}</span>
+                        {% else %}
+                            <span class="text-muted d-block fs-5 opacity-50">—:—</span>
+                            <span class="badge bg-light text-muted border d-block mx-auto mt-1 w-75 py-1.5 rounded-pill">Belum Absen</span>
+                        {% endif %}
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted d-block mb-1">Jam Pulang</small>
+                        {% if presensi_hari_ini.jam_pulang %}
+                            <strong class="fs-4 text-dark">{{ presensi_hari_ini.jam_pulang|time:"H:i" }} WIB</strong>
+                            <span class="badge bg-info bg-opacity-10 text-info d-block mx-auto mt-1 w-75 py-1.5 rounded-pill">Selesai</span>
+                        {% else %}
+                            <span class="text-muted d-block fs-5 opacity-50">—:—</span>
+                            <span class="badge bg-light text-muted border d-block mx-auto mt-1 w-75 py-1.5 rounded-pill">Belum Absen</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Absen Forms -->
+                {% if not presensi_hari_ini %}
+                    <!-- Mode: Absen Masuk -->
+                    <form action="{% url 'presensi_masuk' %}" method="POST">
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <label for="id_keterangan" class="form-label fw-semibold text-dark small">Catatan / Keterangan (Opsional)</label>
+                            {{ form.keterangan }}
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg fw-bold rounded-pill py-3 shadow">
+                                <i class="bi bi-geo-alt-fill me-1"></i> Lakukan Presensi Masuk
+                            </button>
+                        </div>
+                    </form>
+                    <div class="alert alert-info border-0 rounded-3 mt-4 small mb-0">
+                        <i class="bi bi-info-circle-fill me-1 text-info"></i> Batas keterlambatan adalah pukul <strong>{{ batas_absen }} WIB</strong>. Lewat dari jam tersebut akan otomatis dicatat sebagai <strong>Terlambat</strong>.
+                    </div>
+                {% elif not presensi_hari_ini.jam_pulang %}
+                    <!-- Mode: Absen Pulang -->
+                    <form action="{% url 'presensi_pulang' %}" method="POST">
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <label for="pulang_keterangan" class="form-label fw-semibold text-dark small">Catatan Pulang (Opsional)</label>
+                            <textarea id="pulang_keterangan" name="keterangan" class="form-control" placeholder="Masukkan keterangan pulang jika diperlukan..." rows="3"></textarea>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-warning text-white btn-lg fw-bold rounded-pill py-3 shadow">
+                                <i class="bi bi-box-arrow-right me-1"></i> Lakukan Presensi Pulang
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary rounded-pill py-2.5 mt-2" disabled>
+                                <i class="bi bi-check2-all me-1"></i> Anda Sudah Absen Masuk
+                            </button>
+                        </div>
+                    </form>
+                {% else %}
+                    <!-- Mode: Selesai Absen Hari Ini -->
+                    <div class="text-center py-4 bg-success bg-opacity-10 border border-success-soft rounded-4">
+                        <div class="text-success mb-2">
+                            <i class="bi bi-check2-circle" style="font-size: 3.5rem;"></i>
+                        </div>
+                        <h5 class="fw-bold text-success mb-1">Absensi Hari Ini Selesai!</h5>
+                        <p class="text-muted small mb-0">Terima kasih atas kerja keras Anda hari ini. Data presensi Anda telah tercatat dengan lengkap.</p>
+                    </div>
+                    <div class="d-grid mt-4">
+                        <a href="{% url 'presensi_riwayat' %}" class="btn btn-primary fw-bold rounded-pill py-3 shadow-sm">
+                            <i class="bi bi-clock-history me-1"></i> Lihat Riwayat Absensi Anda
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function updateClock() {
+        const now = new Date();
+        const options = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+        const timeStr = now.toLocaleTimeString('id-ID', options) + " WIB";
+        const clockEl = document.getElementById('digital-clock');
+        if (clockEl) {
+            clockEl.innerText = timeStr;
+        }
+    }
+    setInterval(updateClock, 1000);
+    // Jalankan sekali saat load
+    document.addEventListener("DOMContentLoaded", updateClock);
+</script>
+{% endblock %}

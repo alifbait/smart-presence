@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block title %}Masuk | Smart Presence{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center animate-fade-in" style="min-height: 70vh;">
+    <div class="col-md-5">
+        <!-- Login Card -->
+        <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+            <!-- Top Gradient Header -->
+            <div class="bg-primary-gradient p-5 text-center text-white position-relative">
+                <div class="position-absolute top-50 start-50 translate-middle text-white opacity-10">
+                    <i class="bi bi-shield-lock" style="font-size: 8rem;"></i>
+                </div>
+                <div class="position-relative z-index-1">
+                    <i class="bi bi-fingerprint text-cyan display-4 mb-3 d-inline-block"></i>
+                    <h2 class="fw-bold mb-1">SMART PRESENCE</h2>
+                    <p class="text-white-50 small mb-0">Silakan masuk ke dalam sistem kehadiran Anda</p>
+                </div>
+            </div>
+
+            <!-- Login Form Body -->
+            <div class="card-body p-5 bg-white">
+                <form method="POST" action="{% url 'login' %}" autocomplete="off">
+                    {% csrf_token %}
+                    
+                    <!-- Username Input -->
+                    <div class="mb-4">
+                        <label for="id_username" class="form-label fw-semibold text-dark mb-2">
+                            <i class="bi bi-person-fill me-1 text-primary"></i> Nama Pengguna
+                        </label>
+                        <div class="input-group shadow-sm rounded-3 overflow-hidden">
+                            <span class="input-group-text bg-light border-end-0 text-muted px-3">
+                                <i class="bi bi-envelope"></i>
+                            </span>
+                            <input type="text" 
+                                   name="username" 
+                                   id="id_username" 
+                                   class="form-control form-control-lg border-start-0 bg-light fs-6" 
+                                   placeholder="Username atau NIK Anda" 
+                                   required 
+                                   autofocus>
+                        </div>
+                    </div>
+
+                    <!-- Password Input -->
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between mb-2">
+                            <label for="id_password" class="form-label fw-semibold text-dark mb-0">
+                                <i class="bi bi-key-fill me-1 text-primary"></i> Kata Sandi
+                            </label>
+                            <a href="#" onclick="alert('Fitur lupa kata sandi belum tersedia, hubungi admin sistem.')" class="text-primary-dark text-decoration-none small hover-underline">Lupa Sandi?</a>
+                        </div>
+                        <div class="input-group shadow-sm rounded-3 overflow-hidden">
+                            <span class="input-group-text bg-light border-end-0 text-muted px-3">
+                                <i class="bi bi-lock"></i>
+                            </span>
+                            <input type="password" 
+                                   name="password" 
+                                   id="id_password" 
+                                   class="form-control form-control-lg border-start-0 bg-light fs-6" 
+                                   placeholder="Kata sandi rahasia Anda" 
+                                   required>
+                        </div>
+                    </div>
+
+                    <!-- Remember Me Checklist (Optional visual addition) -->
+                    <div class="mb-4 form-check d-flex justify-content-between align-items-center">
+                        <div>
+                            <input type="checkbox" class="form-check-input" id="rememberMe">
+                            <label class="form-check-label text-muted small" for="rememberMe">Ingat saya di perangkat ini</label>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-cyan btn-lg fw-bold py-3 rounded-3 shadow">
+                            <i class="bi bi-box-arrow-in-right me-2"></i> MASUK SEKARANG
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Footer Hint -->
+                <div class="text-center mt-4">
+                    <p class="text-muted small mb-0">
+                        Belum punya akun? <a href="/admin" class="text-primary fw-bold text-decoration-none hover-underline">Hubungi Administrator</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Back to Home Link -->
+        <div class="text-center mt-4">
+            <a href="{% url 'home' %}" class="text-muted text-decoration-none small">
+                <i class="bi bi-arrow-left me-1"></i> Kembali ke Beranda
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

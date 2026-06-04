@@ -1,0 +1,146 @@
+/* 
+ * Style Sheet Kustom - Smart Presence
+ * Dibuat khusus dengan warna modern (HSL) dan efek mikro-animasi premium
+ * untuk kenyamanan visual pemula dan estetika profesional.
+ */
+
+:root {
+    /* Palet Warna Harmonik & Modern */
+    --primary-color: hsl(224, 76%, 48%);       /* Royal Blue */
+    --primary-dark:  hsl(224, 71%, 15%);       /* Indigo Deep */
+    --cyan-accent:   hsl(180, 100%, 42%);      /* Electric Cyan */
+    --cyan-dark:     hsl(180, 100%, 25%);      /* Darker Cyan */
+    
+    /* Gradasi Premium */
+    --primary-gradient: linear-gradient(135deg, var(--primary-dark) 0%, hsl(224, 60%, 26%) 100%);
+    
+    /* Warna Lembut (Soft backgrounds) */
+    --primary-soft: hsla(224, 76%, 48%, 0.08);
+    --cyan-soft:    hsla(180, 100%, 42%, 0.08);
+}
+
+/* Kustomisasi Font Global */
+body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: hsl(220, 20%, 20%);
+    letter-spacing: -0.01em;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1 0 auto;
+    padding-bottom: 80px !important; /* Tambahkan bottom spacing yang proper */
+}
+
+/* Gradasi Latar Belakang */
+.bg-primary-gradient {
+    background: var(--primary-gradient) !important;
+}
+
+.bg-primary-dark {
+    background-color: var(--primary-dark) !important;
+}
+
+/* Tombol Aksen Cyan Bulat */
+.btn-cyan {
+    background-color: var(--cyan-accent);
+    color: var(--primary-dark) !important;
+    border: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-cyan:hover {
+    background-color: hsl(180, 100%, 38%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px hsla(180, 100%, 42%, 0.3);
+}
+
+/* Efek Hover untuk Navbar Link */
+.navbar-nav .nav-link {
+    transition: color 0.2s ease;
+}
+
+.hover-white:hover {
+    color: #ffffff !important;
+}
+
+.text-cyan {
+    color: var(--cyan-accent) !important;
+}
+
+.text-primary-dark {
+    color: var(--primary-dark) !important;
+}
+
+/* Soft Backgrounds untuk Card */
+.bg-primary-soft {
+    background-color: var(--primary-soft);
+}
+
+.bg-cyan-soft {
+    background-color: var(--cyan-soft);
+}
+
+.text-cyan-dark {
+    color: var(--cyan-dark) !important;
+}
+
+/* Bayangan Card Halus */
+.shadow-lg {
+    box-shadow: 0 1rem 3rem rgba(30, 27, 75, 0.075) !important;
+}
+
+.shadow-inner {
+    box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* Mikro-animasi Fade In saat Halaman Dimuat */
+.animate-fade-in {
+    animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Konfigurasi Teks Tambahan */
+.tracking-wide {
+    letter-spacing: 0.05em;
+}
+
+.x-small {
+    font-size: 0.75rem;
+}
+
+/* Penataan Khusus untuk Blok Kode */
+.font-monospace {
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 0.875rem;
+    line-height: 1.6;
+}
+
+/* Kelas Utilitas Kustom untuk Keindahan Layout */
+.opacity-10 {
+    opacity: 0.08 !important;
+}
+
+.z-index-1 {
+    position: relative;
+    z-index: 2 !important;
+}
+
+.position-absolute.opacity-10 {
+    z-index: 1 !important;
+    pointer-events: none;
+    user-select: none;
+}
+

@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block title %}Riwayat Kehadiran | Smart Presence{% endblock %}
+
+{% block content %}
+<div class="row g-4 animate-fade-in pb-5">
+    <!-- Header Section -->
+    <div class="col-12">
+        <div class="card border-0 shadow-sm rounded-4 bg-white p-4">
+            <div class="row align-items-center g-3">
+                <div class="col-md-6">
+                    <h3 class="fw-bold mb-1 text-dark"><i class="bi bi-clock-history text-primary me-2"></i> Riwayat Absensi</h3>
+                    <p class="text-muted small mb-0">Lihat seluruh catatan kehadiran, status terlambat, dan keterangan presensi Anda.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a href="{% url 'presensi_harian' %}" class="btn btn-primary fw-semibold px-4 py-2.5 rounded-pill shadow-sm">
+                        <i class="bi bi-calendar-check me-1"></i> Absen Hari Ini
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Table Section -->
+    <div class="col-12">
+        <div class="card border-0 shadow-sm rounded-4 bg-white p-4">
+            <div class="row mb-4 justify-content-between align-items-center g-3">
+                <div class="col-lg-5 col-md-7">
+                    <form method="GET" action="{% url 'presensi_riwayat' %}" autocomplete="off">
+                        <div class="input-group shadow-inner rounded-pill overflow-hidden border border-light-subtle bg-light">
+                            <span class="input-group-text bg-transparent border-0 text-muted ps-3">
+                                <i class="bi bi-search"></i>
+                            </span>
+                            <input type="text" 
+                                   name="q" 
+                                   class="form-control bg-transparent border-0 py-2.5 small" 
+                                   placeholder="Cari status kehadiran atau keterangan..." 
+                                   value="{{ pencarian }}">
+                            {% if pencarian %}
+                                <a href="{% url 'presensi_riwayat' %}" class="btn bg-transparent border-0 text-muted d-flex align-items-center pe-3">
+                                    <i class="bi bi-x-circle-fill"></i>
+                                </a>
+                            {% endif %}
+                            <button type="submit" class="btn btn-primary px-4 fw-semibold rounded-pill my-1 me-1 shadow-sm fs-7">Cari</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-auto">
+                    <span class="text-muted small">Total Data: <strong>{{ riwayat|length }}</strong> Catatan</span>
+                </div>
+            </div>
+
+            <!-- Table Riwayat -->
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr class="small text-muted text-uppercase">
+                            <th class="border-0 rounded-start-3" style="width: 60px;">No</th>
+                            <th class="border-0">Tanggal</th>
+                            <th class="border-0">Waktu Masuk</th>
+                            <th class="border-0">Waktu Pulang</th>
+                            <th class="border-0">Status</th>
+                            <th class="border-0 rounded-end-3">Catatan / Keterangan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in riwayat %}
+                        <tr>
+                            <td class="fw-semibold text-muted ps-3">{{ forloop.counter }}</td>
+                            <td>
+                                <div class="fw-semibold text-dark">{{ log.tanggal|date:"d F Y" }}</div>
+                            </td>
+                            <td>
+                                <code class="text-success fw-bold">{% if log.jam_masuk %}{{ log.jam_masuk|time:"H:i" }} WIB{% else %}-{% endif %}</code>
+                            </td>
+                            <td>
+                                <code class="text-danger fw-bold">{% if log.jam_pulang %}{{ log.jam_pulang|time:"H:i" }} WIB{% else %}-{% endif %}</code>
+                            </td>
+                            <td>
+                                <span class="badge bg-{% if log.status_kehadiran == 'Hadir' %}success{% elif log.status_kehadiran == 'Terlambat' %}warning{% else %}info{% endif %} bg-opacity-10 text-{% if log.status_kehadiran == 'Hadir' %}success{% elif log.status_kehadiran == 'Terlambat' %}warning{% else %}info{% endif %} fw-semibold px-3 py-1.5 rounded-pill">
+                                    <i class="bi bi-{% if log.status_kehadiran == 'Hadir' %}check-circle-fill{% elif log.status_kehadiran == 'Terlambat' %}exclamation-circle-fill{% else %}info-circle-fill{% endif %} me-1"></i> {{ log.status_kehadiran }}
+                                </span>
+                            </td>
+                            <td class="text-muted small">
+                                {{ log.keterangan|default:"-" }}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5">
+                                <div class="text-muted mb-3">
+                                    <i class="bi bi-calendar-x fs-1 opacity-25"></i>
+                                </div>
+                                <h6 class="fw-semibold text-dark">Riwayat presensi tidak ditemukan</h6>
+                                <p class="text-muted small mb-0">Silakan lakukan presensi masuk terlebih dahulu pada menu utama.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

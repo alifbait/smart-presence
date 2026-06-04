@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sistem Kehadiran Pintar - Smart Presence dengan Django, MySQL, dan Bootstrap 5">
+    <title>{% block title %}{{ judul_halaman|default:"Smart Presence" }}{% endblock %}</title>
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap 5 CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+    <!-- Bootstrap Icons (Untuk Ikon yang Menarik) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <!-- Memuat file statis Django -->
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body class="bg-light d-flex flex-column min-vh-100">
+
+    <!-- Header & Navbar Utama -->
+    <header class="shadow-sm">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary-gradient py-3">
+            <div class="container">
+                <a class="navbar-brand d-flex align-items-center fw-bold text-white" href="{% url 'home' %}">
+                    <i class="bi bi-fingerprint me-2 fs-3 text-cyan"></i>
+                    SMART<span class="text-cyan ms-1">PRESENCE</span>
+                </a>
+
+                <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false"
+                    aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto align-items-center">
+                        {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link px-3 fw-medium {% if request.resolver_match.url_name == 'dashboard' %}text-white{% else %}text-white-50{% endif %} hover-white" href="{% url 'dashboard' %}">
+                                <i class="bi bi-speedometer2 me-1"></i> Dashboard
+                            </a>
+                        </li>
+                        {% if user.is_superuser or user.is_staff %}
+                        <li class="nav-item">
+                            <a class="nav-link px-3 fw-medium {% if 'karyawan' in request.path %}text-white{% else %}text-white-50{% endif %} hover-white" href="{% url 'pegawai_list' %}">
+                                <i class="bi bi-people-fill me-1"></i> Manajemen User
+                            </a>
+                        </li>
+                        {% endif %}
+                        <li class="nav-item">
+                            <a class="nav-link px-3 fw-medium {% if 'presensi' in request.path and 'izin' not in request.path %}text-white{% else %}text-white-50{% endif %} hover-white" href="{% url 'presensi_harian' %}">
+                                <i class="bi bi-calendar-check me-1"></i> Presensi
+                            </a>
+                        </li>
+                        {% if user.is_superuser or user.is_staff %}
+                        <li class="nav-item">
+                            <a class="nav-link px-3 fw-medium {% if 'izin' in request.path %}text-white{% else %}text-white-50{% endif %} hover-white" href="{% url 'admin_izin' %}">
+                                <i class="bi bi-clipboard-check me-1"></i> Persetujuan Izin
+                                {% if pending_count and pending_count > 0 %}
+                                <span class="badge rounded-pill bg-danger ms-1 align-text-top" style="font-size: 0.65rem;">{{ pending_count }}</span>
+                                {% endif %}
+                            </a>
+                        </li>
+                        {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link px-3 fw-medium {% if 'izin' in request.path %}text-white{% else %}text-white-50{% endif %} hover-white" href="{% url 'riwayat_izin' %}">
+                                <i class="bi bi-envelope-paper me-1"></i> Izin / Cuti
+                            </a>
+                        </li>
+                        {% endif %}
+                        <li class="nav-item">
+                            <a class="nav-link px-3 fw-medium {% if 'laporan' in request.path %}text-white{% else %}text-white-50{% endif %} hover-white" href="{% url 'laporan_presensi' %}">
+                                <i class="bi bi-file-earmark-bar-graph me-1"></i> Laporan
+                            </a>
+                        </li>
+                        <li class="nav-item ms-lg-3 mt-2 mt-lg-0 d-flex align-items-center">
+                            <span
+                                class="badge bg-primary-soft text-cyan border border-cyan px-3 py-2 rounded-pill me-2">
+                                <i class="bi bi-person-fill me-1"></i> {{ user.first_name|default:user.username }}
+                            </span>
+                            <a class="btn btn-outline-light btn-sm fw-semibold px-3 rounded-pill shadow-sm"
+                                href="{% url 'logout' %}">
+                                <i class="bi bi-box-arrow-right me-1"></i> Keluar
+                            </a>
+                        </li>
+                        {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link active px-3 fw-medium" href="{% url 'home' %}">
+                                <i class="bi bi-house-door-fill me-1"></i> Beranda
+                            </a>
+                        </li>
+                        <li class="nav-item ms-lg-3 mt-2 mt-lg-0">
+                            <a class="btn btn-cyan text-primary-dark fw-semibold px-4 rounded-pill shadow-sm"
+                                href="{% url 'login' %}">
+                                <i class="bi bi-box-arrow-in-right me-1"></i> Masuk
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Konten Utama Proyek -->
+    <main class="flex-grow-1 py-5 pb-5">
+        <div class="container">
+            <!-- Pesan / Notifikasi Dinamis (Django Messages) -->
+            {% if messages %}
+            <div class="row justify-content-center mb-4">
+                <div class="col-lg-8">
+                    {% for message in messages %}
+                    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags|default:'info' }}{% endif %} alert-dismissible fade show border-0 shadow-sm rounded-4 p-3 d-flex align-items-center"
+                        role="alert">
+                        {% if message.tags == 'success' %}
+                        <i class="bi bi-check-circle-fill fs-4 me-3 text-success"></i>
+                        {% elif message.tags == 'error' or message.tags == 'danger' %}
+                        <i class="bi bi-exclamation-triangle-fill fs-4 me-3 text-danger"></i>
+                        {% else %}
+                        <i class="bi bi-info-circle-fill fs-4 me-3 text-info"></i>
+                        {% endif %}
+                        <div class="fw-medium">{{ message }}</div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% block content %}
+            <!-- Konten Selamat Datang bawaan jika template tidak di-override -->
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card border-0 shadow-lg overflow-hidden rounded-4 animate-fade-in">
+                        <div class="card-header bg-primary-gradient p-5 text-center text-white position-relative">
+                            <div class="position-relative z-index-1">
+                                <span
+                                    class="badge bg-cyan text-primary-dark fw-bold px-3 py-2 rounded-pill mb-3 uppercase tracking-wider">Setup
+                                    Awal Berhasil</span>
+                                <h1 class="display-5 fw-bold mb-2">Selamat Datang di Smart Presence!</h1>
+                                <p class="lead opacity-90 text-white-80">Fondasi sistem presensi pintar berbasis web
+                                    Anda telah siap dikembangkan.</p>
+                            </div>
+                        </div>
+                        <div class="card-body p-5 bg-white">
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <div
+                                        class="d-flex align-items-start p-3 bg-light rounded-3 border border-light-subtle h-100">
+                                        <div class="bg-primary-soft p-3 rounded-3 text-primary me-3">
+                                            <i class="bi bi-database-check fs-3"></i>
+                                        </div>
+                                        <div>
+                                            <h5 class="fw-bold mb-1 text-dark">Database Terkoneksi</h5>
+                                            <p class="text-muted small mb-0">{{ status_koneksi|default:"Koneksi database
+                                                MySQL terkonfigurasi dengan baik." }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div
+                                        class="d-flex align-items-start p-3 bg-light rounded-3 border border-light-subtle h-100">
+                                        <div class="bg-cyan-soft p-3 rounded-3 text-cyan-dark me-3">
+                                            <i class="bi bi-palette-fill fs-3"></i>
+                                        </div>
+                                        <div>
+                                            <h5 class="fw-bold mb-1 text-dark">Bootstrap 5 & Custom CSS</h5>
+                                            <p class="text-muted small mb-0">Styling responsif dan elemen visual premium
+                                                sudah termuat secara langsung.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr class="my-5 text-muted opacity-25">
+
+                            <h4 class="fw-bold text-dark mb-4 text-center">Struktur Folder Proyek</h4>
+                            <div
+                                class="p-4 bg-dark text-white-50 rounded-4 font-monospace shadow-inner overflow-x-auto">
+                                <div><span class="text-primary-light">smart-presence/</span></div>
+                                <div>├── requirements.txt <span class="text-muted">// Dependensi Django, MySQL,
+                                        dll</span></div>
+                                <div>├── manage.py <span class="text-muted">// Utilitas Django</span></div>
+                                <div>├── <span class="text-primary-light">smart_presence/</span> <span
+                                        class="text-muted">// Folder utama aplikasi</span></div>
+                                <div>│ ├── settings.py <span class="text-muted">// Konfigurasi MySQL, Static &
+                                        Templates</span></div>
+                                <div>│ └── urls.py <span class="text-muted">// Routing halaman utama & admin</span>
+                                </div>
+                                <div>├── <span class="text-cyan">templates/</span></div>
+                                <div>│ └── base.html <span class="text-muted">// Template induk ini</span></div>
+                                <div>└── <span class="text-warning-light">static/</span></div>
+                                <div> └── css/style.css <span class="text-muted">// Desain stylesheet kustom</span>
+                                </div>
+                            </div>
+
+                            <div class="alert alert-warning border-0 rounded-4 p-4 mt-5 d-flex align-items-start">
+                                <i class="bi bi-info-circle-fill text-warning fs-3 me-3 mt-1"></i>
+                                <div>
+                                    <h5 class="alert-heading fw-bold">Apa langkah selanjutnya?</h5>
+                                    <p class="mb-0 small">Aktifkan virtual environment Anda (`.venv`), jalankan perintah
+                                        <code>pip install -r requirements.txt</code>, buat database
+                                        <code>smart_presence</code> di server MySQL local Anda, lakukan migrasi, dan
+                                        jalankan server pengembangan Django!
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endblock %}
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-primary-dark text-white-50 py-4 mt-auto border-top border-dark-subtle">
+        <div class="container text-center">
+            <p class="mb-1 small">Smart Presence © 2026. Dipersembahkan untuk Kemudahan Presensi.</p>
+            <p class="mb-0 x-small text-muted">Dibuat menggunakan Django, MySQL, dan Bootstrap 5</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap Bundle dengan Popper JS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>

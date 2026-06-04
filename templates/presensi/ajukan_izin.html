@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block title %}Ajukan Izin / Sakit / Cuti | Smart Presence{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center animate-fade-in pb-5">
+    <div class="col-lg-8">
+        <!-- Header Section -->
+        <div class="card border-0 shadow-sm rounded-4 bg-white p-4 mb-4">
+            <div class="row align-items-center g-3">
+                <div class="col-md-8">
+                    <h3 class="fw-bold mb-1 text-dark">
+                        <i class="bi bi-calendar2-plus text-primary me-2"></i> Pengajuan Izin & Cuti
+                    </h3>
+                    <p class="text-muted small mb-0">Silakan lengkapi formulir di bawah ini untuk mengajukan Izin, Sakit, atau Cuti kerja secara formal.</p>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <a href="{% url 'riwayat_izin' %}" class="btn btn-outline-primary fw-semibold px-4 py-2 rounded-pill shadow-sm">
+                        <i class="bi bi-arrow-left me-1"></i> Kembali ke Riwayat
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Card -->
+        <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
+            <div class="card-header bg-primary-gradient p-4 text-white">
+                <h5 class="fw-bold mb-0"><i class="bi bi-file-earmark-text me-2 text-cyan"></i> Formulir Pengajuan</h5>
+            </div>
+            <div class="card-body p-4 p-md-5">
+                <form method="POST" enctype="multipart/form-data" novalidate>
+                    {% csrf_token %}
+
+                    <div class="row g-4">
+                        <!-- Jenis Izin -->
+                        <div class="col-md-12">
+                            <label for="{{ form.jenis_izin.id_for_label }}" class="form-label fw-semibold text-dark">Jenis Pengajuan <span class="text-danger">*</span></label>
+                            {{ form.jenis_izin }}
+                            {% if form.jenis_izin.errors %}
+                                <div class="text-danger small mt-1">{{ form.jenis_izin.errors.0 }}</div>
+                            {% endif %}
+                            <div class="form-text text-muted small">Pilih kategori pengajuan Anda: Izin (urusan mendesak), Sakit (membutuhkan istirahat), atau Cuti (hak cuti tahunan).</div>
+                        </div>
+
+                        <!-- Tanggal Mulai -->
+                        <div class="col-md-6">
+                            <label for="{{ form.tanggal_mulai.id_for_label }}" class="form-label fw-semibold text-dark">Tanggal Mulai <span class="text-danger">*</span></label>
+                            {{ form.tanggal_mulai }}
+                            {% if form.tanggal_mulai.errors %}
+                                <div class="text-danger small mt-1">{{ form.tanggal_mulai.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Tanggal Selesai -->
+                        <div class="col-md-6">
+                            <label for="{{ form.tanggal_selesai.id_for_label }}" class="form-label fw-semibold text-dark">Tanggal Selesai <span class="text-danger">*</span></label>
+                            {{ form.tanggal_selesai }}
+                            {% if form.tanggal_selesai.errors %}
+                                <div class="text-danger small mt-1">{{ form.tanggal_selesai.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Alasan -->
+                        <div class="col-md-12">
+                            <label for="{{ form.alasan.id_for_label }}" class="form-label fw-semibold text-dark">Alasan Pengajuan <span class="text-danger">*</span></label>
+                            {{ form.alasan }}
+                            {% if form.alasan.errors %}
+                                <div class="text-danger small mt-1">{{ form.alasan.errors.0 }}</div>
+                            {% endif %}
+                            <div class="form-text text-muted small">Berikan alasan atau keterangan yang jelas dan spesifik terkait pengajuan Anda.</div>
+                        </div>
+
+                        <!-- Bukti Pendukung -->
+                        <div class="col-md-12">
+                            <label for="{{ form.bukti_file.id_for_label }}" class="form-label fw-semibold text-dark">Dokumen Bukti Pendukung <span class="text-muted">(Opsional)</span></label>
+                            {{ form.bukti_file }}
+                            {% if form.bukti_file.errors %}
+                                <div class="text-danger small mt-1">{{ form.bukti_file.errors.0 }}</div>
+                            {% endif %}
+                            <div class="form-text text-muted small">Unggah surat keterangan sakit dari dokter, surat undangan dinas, atau berkas pendukung lainnya (Format PDF/Gambar).</div>
+                        </div>
+                    </div>
+
+                    <hr class="my-4 text-muted opacity-25">
+
+                    <!-- Submit Buttons -->
+                    <div class="d-flex justify-content-end gap-3">
+                        <a href="{% url 'riwayat_izin' %}" class="btn btn-light fw-bold px-4 py-2.5 rounded-pill border shadow-sm">
+                            Batal
+                        </a>
+                        <button type="submit" class="btn btn-primary fw-bold px-5 py-2.5 rounded-pill shadow-sm">
+                            <i class="bi bi-send-fill me-1 text-cyan"></i> Kirim Pengajuan
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

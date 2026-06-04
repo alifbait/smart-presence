@@ -1,0 +1,311 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard Utama | Smart Presence{% endblock %}
+
+{% block content %}
+<div class="row g-4 animate-fade-in pb-5">
+    <!-- Notification Panel for Leaves -->
+    {% if is_admin and pending_count > 0 %}
+    <div class="col-12">
+        <div class="alert alert-warning border-0 shadow-sm rounded-4 p-4 d-flex align-items-center justify-content-between animate-fade-in mb-0 bg-white border-start border-warning border-4">
+            <div class="d-flex align-items-center">
+                <div class="bg-warning bg-opacity-20 p-3 rounded-3 text-warning me-3">
+                    <i class="bi bi-envelope-exclamation-fill fs-3"></i>
+                </div>
+                <div>
+                    <h5 class="fw-bold mb-1 text-dark">Pemberitahuan Persetujuan Izin</h5>
+                    <p class="mb-0 text-muted">Ada <strong>{{ pending_count }}</strong> pengajuan izin baru dari pegawai yang membutuhkan tindakan persetujuan Anda.</p>
+                </div>
+            </div>
+            <a href="{% url 'admin_izin' %}" class="btn btn-warning fw-bold px-4 py-2 rounded-pill shadow-sm text-decoration-none text-dark">
+                Tinjau Sekarang <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Welcome Header Card -->
+    <div class="col-12">
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-primary-gradient text-white">
+            <div class="card-body p-5 position-relative">
+                <div class="position-absolute top-50 end-0 translate-middle-y me-5 opacity-10 d-none d-lg-block">
+                    <i class="bi bi-speedometer2" style="font-size: 10rem;"></i>
+                </div>
+                <div class="row align-items-center position-relative z-index-1">
+                    <div class="col-lg-8">
+                        <span class="badge bg-cyan text-primary-dark fw-bold px-3 py-2 rounded-pill mb-3 text-uppercase tracking-wide">
+                            <i class="bi bi-clock-fill me-1"></i> {{ tanggal_lengkap }}
+                        </span>
+                        <h1 class="display-6 fw-bold mb-2">Selamat Datang Kembali, {{ user.first_name|default:user.username }}!</h1>
+                        <p class="lead opacity-80 mb-0">Sistem Smart Presence mencatat presensi Anda dengan mudah, aman, dan transparan.</p>
+                    </div>
+                    <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
+                        <a href="{% url 'presensi_harian' %}" class="btn btn-cyan btn-lg fw-bold px-4 py-3 rounded-pill shadow-sm text-decoration-none text-primary-dark">
+                            <i class="bi bi-geo-alt-fill me-1"></i> Presensi Masuk
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats Cards Row -->
+    <div class="col-lg-3 col-md-6">
+        <div class="card border-0 shadow-sm rounded-4 h-100 hover-translate">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="bg-success bg-opacity-10 p-3 rounded-3 text-success">
+                        <i class="bi bi-check-circle-fill fs-3"></i>
+                    </div>
+                    <span class="text-success small fw-bold bg-success bg-opacity-10 px-2 py-1 rounded-pill">Sangat Baik</span>
+                </div>
+                <h6 class="text-muted fw-semibold mb-1">Total Hadir</h6>
+                <h3 class="display-6 fw-bold text-dark mb-0">{{ kehadiran_stats.hadir }} <span class="fs-5 text-muted fw-normal">Hari</span></h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6">
+        <div class="card border-0 shadow-sm rounded-4 h-100 hover-translate">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="bg-warning bg-opacity-10 p-3 rounded-3 text-warning">
+                        <i class="bi bi-exclamation-circle-fill fs-3"></i>
+                    </div>
+                    <span class="text-warning small fw-bold bg-warning bg-opacity-10 px-2 py-1 rounded-pill">Perlu Evaluasi</span>
+                </div>
+                <h6 class="text-muted fw-semibold mb-1">Total Terlambat</h6>
+                <h3 class="display-6 fw-bold text-dark mb-0">{{ kehadiran_stats.terlambat }} <span class="fs-5 text-muted fw-normal">Kali</span></h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6">
+        <div class="card border-0 shadow-sm rounded-4 h-100 hover-translate">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="bg-info bg-opacity-10 p-3 rounded-3 text-info">
+                        <i class="bi bi-info-circle-fill fs-3"></i>
+                    </div>
+                    <span class="text-info small fw-bold bg-info bg-opacity-10 px-2 py-1 rounded-pill">Dengan Izin</span>
+                </div>
+                <h6 class="text-muted fw-semibold mb-1">Izin / Sakit</h6>
+                <h3 class="display-6 fw-bold text-dark mb-0">{{ kehadiran_stats.izin }} <span class="fs-5 text-muted fw-normal">Hari</span></h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6">
+        <div class="card border-0 shadow-sm rounded-4 h-100 hover-translate">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="bg-danger bg-opacity-10 p-3 rounded-3 text-danger">
+                        <i class="bi bi-x-circle-fill fs-3"></i>
+                    </div>
+                    <span class="text-danger small fw-bold bg-danger bg-opacity-10 px-2 py-1 rounded-pill">Sangat Kurang</span>
+                </div>
+                <h6 class="text-muted fw-semibold mb-1">Tanpa Keterangan</h6>
+                <h3 class="display-6 fw-bold text-dark mb-0">{{ kehadiran_stats.alpa }} <span class="fs-5 text-muted fw-normal">Hari</span></h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-header bg-white border-0 pt-4 pb-0 px-4 d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="fw-bold mb-1 text-dark">Aktivitas Presensi Terkini</h5>
+                    <p class="text-muted small mb-0">Daftar presensi teratas di instansi Anda saat ini</p>
+                </div>
+                <button onclick="alert('Membuka seluruh riwayat presensi...')" class="btn btn-outline-primary btn-sm rounded-pill fw-semibold px-3">
+                    Lihat Semua
+                </button>
+            </div>
+            <div class="card-body p-4">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr class="small text-muted text-uppercase">
+                                <th class="border-0 rounded-start-3" style="width: 50px;">#</th>
+                                <th class="border-0">Nama Karyawan</th>
+                                <th class="border-0">Waktu Masuk</th>
+                                <th class="border-0 rounded-end-3" style="width: 150px;">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for checkin in recent_checkins %}
+                            <tr>
+                                <td class="fw-semibold text-muted">{{ forloop.counter }}</td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-primary-soft text-primary rounded-circle p-2 me-3 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
+                                            <i class="bi bi-person-fill fs-5"></i>
+                                        </div>
+                                        <div class="fw-semibold text-dark">{{ checkin.nama }}</div>
+                                    </div>
+                                </td>
+                                <td class="text-muted">{{ checkin.waktu }}</td>
+                                <td>
+                                    <span class="badge bg-{{ checkin.status_class }} bg-opacity-10 text-{{ checkin.status_class }} fw-semibold px-3 py-2 rounded-pill d-inline-flex align-items-center">
+                                        <i class="bi bi-{{ checkin.tipe_icon }} me-1"></i> {{ checkin.status }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center py-4 text-muted">Belum ada aktivitas presensi hari ini.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pengajuan Izin & Cuti Terkini Card -->
+        <div class="card border-0 shadow-sm rounded-4 mt-4 bg-white">
+            <div class="card-header bg-white border-0 pt-4 pb-0 px-4 d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="fw-bold mb-1 text-dark">Pengajuan Izin & Cuti Terkini</h5>
+                    <p class="text-muted small mb-0">
+                        {% if is_admin %}
+                        Daftar pengajuan izin terbaru dari seluruh pegawai
+                        {% else %}
+                        Status pengajuan izin terbaru Anda
+                        {% endif %}
+                    </p>
+                </div>
+                <a href="{% if is_admin %}{% url 'admin_izin' %}{% else %}{% url 'riwayat_izin' %}{% endif %}" class="btn btn-outline-primary btn-sm rounded-pill fw-semibold px-3 text-decoration-none">
+                    Lihat Semua
+                </a>
+            </div>
+            <div class="card-body p-4">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr class="small text-muted text-uppercase">
+                                <th class="border-0 rounded-start-3" style="width: 50px;">#</th>
+                                <th class="border-0">Nama Karyawan</th>
+                                <th class="border-0">Jenis / Periode</th>
+                                <th class="border-0">Alasan</th>
+                                <th class="border-0 rounded-end-3" style="width: 150px;">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for izin in recent_izin %}
+                            <tr>
+                                <td class="fw-semibold text-muted">{{ forloop.counter }}</td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-info bg-opacity-10 text-info rounded-circle p-2 me-3 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
+                                            <i class="bi bi-person-fill fs-5"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-semibold text-dark">{{ izin.pegawai.nama_lengkap }}</div>
+                                            <div class="text-muted small" style="font-size: 0.75rem;">{{ izin.pegawai.jabatan }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="fw-bold text-primary-dark mb-1">{{ izin.jenis_izin }}</div>
+                                    <div class="text-muted small" style="font-size: 0.75rem;">{{ izin.tanggal_mulai|date:"d M Y" }} s/d {{ izin.tanggal_selesai|date:"d M Y" }}</div>
+                                </td>
+                                <td class="text-muted small" style="max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                    {{ izin.alasan }}
+                                </td>
+                                <td>
+                                    {% if izin.status_persetujuan == 'Pending' %}
+                                    <span class="badge bg-warning bg-opacity-10 text-warning fw-semibold px-3 py-2 rounded-pill">
+                                        <i class="bi bi-clock-history me-1"></i> Pending
+                                    </span>
+                                    {% elif izin.status_persetujuan == 'Disetujui' %}
+                                    <span class="badge bg-success bg-opacity-10 text-success fw-semibold px-3 py-2 rounded-pill">
+                                        <i class="bi bi-check-circle-fill me-1"></i> Disetujui
+                                    </span>
+                                    {% else %}
+                                    <span class="badge bg-danger bg-opacity-10 text-danger fw-semibold px-3 py-2 rounded-pill">
+                                        <i class="bi bi-x-circle-fill me-1"></i> Ditolak
+                                    </span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center py-4 text-muted">Belum ada pengajuan izin yang tercatat.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Sidebar Panel: Quick Actions & Tips -->
+    <div class="col-lg-4">
+        <div class="row g-4">
+            <!-- Attendance Rate Panel -->
+            <div class="col-12">
+                <div class="card border-0 shadow-sm rounded-4 bg-cyan bg-opacity-10 border border-cyan-soft">
+                    <div class="card-body p-4 text-center">
+                        <h6 class="text-cyan-dark fw-bold text-uppercase tracking-wide mb-3">Persentase Kehadiran Anda</h6>
+                        <div class="position-relative d-inline-block mb-3">
+                            <div class="d-flex align-items-center justify-content-center bg-white rounded-circle shadow-sm" style="width: 120px; height: 120px;">
+                                <div class="text-center">
+                                    <span class="display-6 fw-bold text-primary-dark mb-0">{{ kehadiran_stats.persentase_kehadiran }}%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-muted small mb-0 px-2">Anda telah menghadiri <strong>{{ kehadiran_stats.hadir }} dari 21 hari kerja</strong> pada bulan ini. Pertahankan performa kerja Anda!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions Panel -->
+            <div class="col-12">
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-3 text-dark">Aksi Cepat</h5>
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'ajukan_izin' %}" class="btn btn-light text-start fw-semibold py-3 px-4 rounded-3 border-0 shadow-sm d-flex align-items-center justify-content-between hover-light text-decoration-none">
+                                <span><i class="bi bi-calendar2-plus me-2 text-info"></i> Ajukan Izin / Sakit</span>
+                                <i class="bi bi-chevron-right text-muted small"></i>
+                            </a>
+                            <a href="{% url 'laporan_presensi' %}" class="btn btn-light text-start fw-semibold py-3 px-4 rounded-3 border-0 shadow-sm d-flex align-items-center justify-content-between hover-light text-decoration-none">
+                                <span><i class="bi bi-file-earmark-pdf me-2 text-danger"></i> Cetak Laporan Bulanan</span>
+                                <i class="bi bi-chevron-right text-muted small"></i>
+                            </a>
+                            <a href="{% url 'pegawai_list' %}" class="btn btn-light text-start fw-semibold py-3 px-4 rounded-3 border-0 shadow-sm d-flex align-items-center justify-content-between hover-light">
+                                <span><i class="bi bi-people-fill me-2 text-primary"></i> Manajemen Pegawai</span>
+                                <i class="bi bi-chevron-right text-muted small"></i>
+                            </a>
+                            <a href="/admin" target="_blank" class="btn btn-light text-start fw-semibold py-3 px-4 rounded-3 border-0 shadow-sm d-flex align-items-center justify-content-between hover-light">
+                                <span><i class="bi bi-shield-lock me-2 text-dark"></i> Kelola Panel Admin</span>
+                                <i class="bi bi-chevron-right text-muted small"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Styling Kustom Khusus Dashboard */
+    .hover-translate {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .hover-translate:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 1rem 3rem rgba(30, 27, 75, 0.08) !important;
+    }
+    .hover-light {
+        transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+    .hover-light:hover {
+        background-color: hsl(220, 20%, 94%) !important;
+        transform: translateX(4px);
+    }
+</style>
+{% endblock %}
