@@ -33,6 +33,21 @@
                 </div>
             </div>
             
+            {% if is_holiday %}
+            <div class="alert alert-warning border-0 border-start border-4 border-warning rounded-0 mb-0 py-3 px-4" role="alert">
+                <div class="d-flex align-items-start gap-3">
+                    <div class="flex-shrink-0 mt-1">
+                        <i class="bi bi-calendar-x-fill text-warning fs-4"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold text-warning-emphasis mb-1">Hari Libur Nasional</h6>
+                        <p class="mb-1 text-warning-emphasis fw-semibold small">{{ holiday_name }}</p>
+                        <p class="mb-0 text-muted small">{{ holiday_description }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
             <div class="card-body p-5">
                 <!-- Check-in status display -->
                 <div class="row g-3 text-center mb-5">
@@ -59,7 +74,21 @@
                 </div>
 
                 <!-- Absen Forms -->
-                {% if not presensi_hari_ini %}
+                {% if is_holiday %}
+                    <!-- Mode: Hari Libur — Sembunyikan semua form presensi -->
+                    <div class="text-center py-4 bg-warning bg-opacity-10 border border-warning rounded-4">
+                        <div class="text-warning mb-3">
+                            <i class="bi bi-calendar-x-fill" style="font-size: 3.5rem;"></i>
+                        </div>
+                        <h5 class="fw-bold text-warning-emphasis mb-1">Presensi Tidak Tersedia</h5>
+                        <p class="text-muted small mb-0">Sistem presensi dinonaktifkan karena <strong>{{ holiday_name }}</strong>.<br>Silakan kembali pada hari kerja berikutnya.</p>
+                    </div>
+                    <div class="d-grid mt-4">
+                        <a href="{% url 'presensi_riwayat' %}" class="btn btn-outline-secondary fw-semibold rounded-pill py-2">
+                            <i class="bi bi-clock-history me-1"></i> Lihat Riwayat Absensi
+                        </a>
+                    </div>
+                {% elif not presensi_hari_ini %}
                     <!-- Mode: Absen Masuk -->
                     <form id="presensi-form" action="{% url 'presensi_masuk' %}" method="POST">
                         {% csrf_token %}

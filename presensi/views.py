@@ -9,7 +9,7 @@ from presensi.models import Presensi, PengajuanIzin
 from presensi.forms import PresensiForm, PengajuanIzinForm
 
 import pandas as pd
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from io import BytesIO
 
 # Reportlab imports
@@ -19,6 +19,24 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, 
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.pdfgen import canvas
 
+# Konfigurasi Hari Libur Nasional Sederhana
+HARI_LIBUR = {
+    "2026-06-04": {
+        "nama": "Hari Libur Simulasi Demo",
+        "keterangan": "Sistem presensi dinonaktifkan karena hari libur nasional/simulasi demo."
+    },
+    "2026-08-17": {
+        "nama": "Hari Kemerdekaan Republik Indonesia",
+        "keterangan": "Memperingati Hari Kemerdekaan Republik Indonesia."
+    },
+    "2026-12-25": {
+        "nama": "Hari Natal",
+        "keterangan": "Libur nasional perayaan Hari Natal."
+    }
+}
+
+TEST_MODE_HARI_LIBUR = True
+
 def get_pegawai_atau_salah(request):
     """
     Helper untuk mendapatkan data Pegawai dari user login secara aman.
@@ -27,6 +45,56 @@ def get_pegawai_atau_salah(request):
     if hasattr(request.user, 'pegawai'):
         return request.user.pegawai
     return None
+
+
+def api_hari_libur(request):
+    """
+    Internal Holiday Service API.
+    Endpoint: GET /api/hari-libur/?tanggal=YYYY-MM-DD
+    Jika parameter tanggal tidak diberikan, gunakan tanggal hari ini
+    (atau tanggal simulasi jika TEST_MODE aktif).
+
+    Response JSON:
+    {
+        "tanggal": "2026-06-04",
+        "is_holiday": true,
+        "holiday_name": "Hari Libur Simulasi Demo",
+        "holiday_description": "...",
+        "source": "Internal Holiday Service",
+        "test_mode": true
+    }
+    """
+    import datetime
+    now = timezone.localtime(timezone.now())
+
+    # Tentukan tanggal yang akan dicek
+    tanggal_param = request.GET.get('tanggal', None)
+    if tanggal_param:
+        try:
+            datetime.datetime.strptime(tanggal_param, '%Y-%m-%d')
+            date_str = tanggal_param
+        except ValueError:
+            return JsonResponse({
+                'error': 'Format tanggal tidak valid. Gunakan format YYYY-MM-DD.',
+                'contoh': '/api/hari-libur/?tanggal=2026-08-17'
+            }, status=400)
+    elif TEST_MODE_HARI_LIBUR:
+        date_str = "2026-06-04"
+    else:
+        date_str = now.strftime('%Y-%m-%d')
+
+    holiday = HARI_LIBUR.get(date_str)
+    is_holiday = holiday is not None
+
+    data = {
+        "tanggal": date_str,
+        "is_holiday": is_holiday,
+        "holiday_name": holiday['nama'] if is_holiday else None,
+        "holiday_description": holiday['keterangan'] if is_holiday else None,
+        "source": "Internal Holiday Service",
+        "test_mode": TEST_MODE_HARI_LIBUR,
+    }
+    return JsonResponse(data)
 
 
 @login_required
@@ -39,19 +107,31 @@ def presensi_harian(request):
         return render(request, 'presensi/no_profile.html', {'judul_halaman': 'Akses Dibatasi | Smart Presence'})
 
     now = timezone.localtime(timezone.now())
-    today = now.date()
+    date_str = "2026-06-04" if TEST_MODE_HARI_LIBUR else now.strftime('%Y-%m-%d')
+    
+    import datetime
+    query_date = datetime.datetime.strptime(date_str, '%Y-%m-%d').date() if TEST_MODE_HARI_LIBUR else now.date()
     
     # Ambil data presensi hari ini jika sudah ada
-    presensi_hari_ini = Presensi.objects.filter(pegawai=pegawai, tanggal=today).first()
+    presensi_hari_ini = Presensi.objects.filter(pegawai=pegawai, tanggal=query_date).first()
     form = PresensiForm(instance=presensi_hari_ini)
+
+    # Deteksi Hari Libur
+    holiday = HARI_LIBUR.get(date_str)
+    is_holiday = holiday is not None
+    holiday_name = holiday.get('nama') if is_holiday else ""
+    holiday_description = holiday.get('keterangan') if is_holiday else ""
 
     konteks = {
         'judul_halaman': 'Absensi Harian | Smart Presence',
         'pegawai': pegawai,
         'presensi_hari_ini': presensi_hari_ini,
         'form': form,
-        'hari_ini': now.strftime('%Y-%m-%d'),
+        'hari_ini': date_str,
         'batas_absen': '08:00',
+        'is_holiday': is_holiday,
+        'holiday_name': holiday_name,
+        'holiday_description': holiday_description,
     }
     return render(request, 'presensi/presensi_harian.html', konteks)
 
@@ -67,7 +147,16 @@ def presensi_masuk(request):
 
     if request.method == 'POST':
         now = timezone.localtime(timezone.now())
-        today = now.date()
+        date_str = "2026-06-04" if TEST_MODE_HARI_LIBUR else now.strftime('%Y-%m-%d')
+        
+        # Validasi Hari Libur
+        if date_str in HARI_LIBUR:
+            holiday_info = HARI_LIBUR[date_str]
+            messages.error(request, f"Tidak dapat melakukan presensi: Hari ini adalah {holiday_info['nama']}. {holiday_info['keterangan']}")
+            return redirect('presensi_harian')
+
+        import datetime
+        today = datetime.datetime.strptime(date_str, '%Y-%m-%d').date() if TEST_MODE_HARI_LIBUR else now.date()
         current_time = now.time()
 
         # Validasi: Cek apakah sudah absen hari ini
@@ -113,7 +202,16 @@ def presensi_pulang(request):
 
     if request.method == 'POST':
         now = timezone.localtime(timezone.now())
-        today = now.date()
+        date_str = "2026-06-04" if TEST_MODE_HARI_LIBUR else now.strftime('%Y-%m-%d')
+
+        # Validasi Hari Libur
+        if date_str in HARI_LIBUR:
+            holiday_info = HARI_LIBUR[date_str]
+            messages.error(request, f"Tidak dapat melakukan presensi: Hari ini adalah {holiday_info['nama']}. {holiday_info['keterangan']}")
+            return redirect('presensi_harian')
+
+        import datetime
+        today = datetime.datetime.strptime(date_str, '%Y-%m-%d').date() if TEST_MODE_HARI_LIBUR else now.date()
         current_time = now.time()
 
         # Ambil data presensi hari ini
